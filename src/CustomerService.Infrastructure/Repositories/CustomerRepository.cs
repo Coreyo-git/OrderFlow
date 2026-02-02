@@ -28,21 +28,19 @@ public class CustomerRepository : ICustomerRepository
 			.FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
 	}
 
-	public async Task<IReadOnlyList<Customer>> GetAllAsync(bool isActive = false, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<Customer>> GetAllAsync(bool? isActive = null, CancellationToken cancellationToken = default)
 	{
-		return await _context.Customers
-			.Where(c => c.IsActive == isActive)
-			.ToListAsync(cancellationToken);
+		var query = _context.Customers.AsQueryable();
+
+		if (isActive.HasValue)
+			query = query.Where(c => c.IsActive == isActive.Value);
+
+		return await query.ToListAsync(cancellationToken);
 	}
 
 	public void Add(Customer customer)
 	{
 		_context.Customers.Add(customer);
-	}
-
-	public void Update(Customer customer)
-	{
-		_context.Customers.Update(customer);
 	}
 
 	public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
