@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CustomerService.Domain\CustomerService.Domain.csproj" />
-    <ProjectReference Include="..\CustomerService.Application\CustomerService.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
