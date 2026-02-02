@@ -1,0 +1,32 @@
+services:
+  customerservice:
+    build:
+      context: .
+      dockerfile: src/CustomerService/Dockerfile
+    ports:
+      - "5100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__CustomerDb=Host=postgres;Database=customerdb;Username=orderflow;Password=orderflow_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=orderflow
+      - POSTGRES_PASSWORD=orderflow_dev
+      - POSTGRES_DB=customerdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orderflow -d customerdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
