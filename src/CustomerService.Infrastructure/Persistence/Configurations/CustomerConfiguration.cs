@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SharedKernel.ValueObjects;
 
+namespace CustomerService.Infrastructure.Persistence.Configurations;
+
 public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
 	public void Configure(EntityTypeBuilder<Customer> builder)
@@ -16,7 +18,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 		builder.Property(c => c.Id)
 			.HasColumnName("id")
 			.HasConversion(
-				id => id.Value,                    // To database (Guid)  
+				id => id.Value,                    // To database (Guid)
 				value => CustomerId.From(value))   // From database (CustomerId)
 			.IsRequired();
 
