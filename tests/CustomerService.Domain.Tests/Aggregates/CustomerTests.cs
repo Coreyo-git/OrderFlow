@@ -1,7 +1,7 @@
 using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.Exceptions;
+using CustomerService.Domain.ValueObjects;
 using FluentAssertions;
-using OrderService.Domain.ValueObjects;
 using SharedKernel.ValueObjects;
 
 namespace CustomerService.Domain.Tests.Aggregates;
@@ -14,6 +14,125 @@ public class CustomerTests
         return Customer.Create(
             CustomerName.From("Test Customer"),
             Email.From(email));
+    }
+
+    public class Create
+    {
+        [Fact]
+        public void Should_create_customer_with_valid_data()
+        {
+            // Arrange
+            var name = CustomerName.From("John Doe");
+            var email = Email.From("john@example.com");
+
+            // Act
+            var customer = Customer.Create(name, email);
+
+            // Assert
+            customer.Name.Should().Be(name);
+            customer.Email.Should().Be(email);
+        }
+
+        [Fact]
+        public void Should_set_IsActive_to_true_on_creation()
+        {
+            // Act
+            var customer = CreateTestCustomer();
+
+            // Assert
+            customer.IsActive.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_assign_new_id_on_creation()
+        {
+            // Act
+            var customer = CreateTestCustomer();
+
+            // Assert
+            customer.Id.Should().NotBeNull();
+            customer.Id.Value.Should().NotBe(Guid.Empty);
+        }
+
+        [Fact]
+        public void Should_set_phones_to_null_when_not_provided()
+        {
+            // Act
+            var customer = CreateTestCustomer();
+
+            // Assert
+            customer.HomePhone.Should().BeNull();
+            customer.MobilePhone.Should().BeNull();
+        }
+
+        [Fact]
+        public void Should_set_phones_when_provided()
+        {
+            // Arrange
+            var homePhone = PhoneNumber.From("12345678");
+            var mobilePhone = PhoneNumber.From("87654321");
+
+            // Act
+            var customer = Customer.Create(
+                CustomerName.From("Test"),
+                Email.From("test@example.com"),
+                homePhone,
+                mobilePhone);
+
+            // Assert
+            customer.HomePhone.Should().Be(homePhone);
+            customer.MobilePhone.Should().Be(mobilePhone);
+        }
+    }
+
+    public class UpdateName
+    {
+        [Fact]
+        public void Should_update_name()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+            var newName = CustomerName.From("New Name");
+
+            // Act
+            customer.UpdateName(newName);
+
+            // Assert
+            customer.Name.Should().Be(newName);
+        }
+    }
+
+    public class Activate
+    {
+        [Fact]
+        public void Should_set_IsActive_to_true()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+            customer.Deactivate(); // First deactivate
+
+            // Act
+            customer.Activate();
+
+            // Assert
+            customer.IsActive.Should().BeTrue();
+        }
+    }
+
+    public class Deactivate
+    {
+        [Fact]
+        public void Should_set_IsActive_to_false()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+
+            // Act
+            customer.Deactivate();
+
+            // Assert
+            customer.IsActive.Should().BeFalse();
+        }
     }
 
     public class UpdateContactDetails
