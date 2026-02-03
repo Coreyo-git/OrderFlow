@@ -1,15 +1,25 @@
 using CustomerService.Application.Interfaces;
 using CustomerService.Application.Services;
+using CustomerService.Application.Validators;
 using CustomerService.Domain.Interfaces;
+using CustomerService.Filters;
 using CustomerService.Infrastructure.Persistence;
 using CustomerService.Infrastructure.Repositories;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+	// Add global validation filter - validates all request bodies with FluentValidation
+	options.Filters.Add<ValidationFilter>();
+});
 builder.Services.AddOpenApi();
+
+// Register all FluentValidation validators from the Application assembly
+builder.Services.AddValidatorsFromAssemblyContaining<CreateCustomerRequestValidator>();
 
 // Add DbContext
 builder.Services.AddDbContext<CustomerDbContext>(options =>
