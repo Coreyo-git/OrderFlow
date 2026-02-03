@@ -37,7 +37,7 @@ public class CustomerApplicationService : ICustomerService
 	public async Task<CustomerResponse> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
 	{
 		var customer = Customer.Create(
-			request.Name,
+			CustomerName.From(request.Name),
 			Email.From(request.Email),
 			PhoneNumber.FromNullable(request.HomePhone),
 			PhoneNumber.FromNullable(request.MobilePhone));
@@ -52,7 +52,7 @@ public class CustomerApplicationService : ICustomerService
 	{
 		return new CustomerResponse(
 			customer.Id.Value,
-			customer.Name,
+			customer.Name.Value,
 			customer.Email.Value,
 			customer.HomePhone?.Value,
 			customer.MobilePhone?.Value,
