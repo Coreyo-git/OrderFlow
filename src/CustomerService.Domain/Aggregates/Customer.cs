@@ -29,7 +29,6 @@ public sealed class Customer
         Email = email;
         HomePhone = homePhone;
 		MobilePhone = mobilePhone;
-		EmailLastChangedAtUtc = DateTime.UtcNow;
         IsActive = true;
     }
 
@@ -54,26 +53,27 @@ public sealed class Customer
 		PhoneNumber? mobilePhone,
 		DateTime utcNow)
 	{
-		if(Email != newEmail)
+		if (Email != newEmail)
 		{
-			if(EmailLastChangedAtUtc.HasValue)
+			// Only enforce 30-day rule if email was previously changed
+			if (EmailLastChangedAtUtc.HasValue)
 			{
 				var timeSinceLastChange = utcNow - EmailLastChangedAtUtc.Value;
 				if (timeSinceLastChange < TimeSpan.FromDays(30))
 				{
 					throw new DomainException(
-					  $"Email can only be changed once every 30 days. " +
-					  $"Last changed {timeSinceLastChange.TotalDays:F0} days ago.");
+						$"Email can only be changed once every 30 days. " +
+						$"Last changed {timeSinceLastChange.TotalDays:F0} days ago.");
 				}
-				
-				Email = newEmail;
-				EmailLastChangedAtUtc = utcNow;
 			}
+
+			Email = newEmail;
+			EmailLastChangedAtUtc = utcNow;
 		}
 
-        HomePhone = homePhone;
-        MobilePhone = mobilePhone;
-    }
+		HomePhone = homePhone;
+		MobilePhone = mobilePhone;
+	}
 
     public void UpdateName(CustomerName newName)
 	{
