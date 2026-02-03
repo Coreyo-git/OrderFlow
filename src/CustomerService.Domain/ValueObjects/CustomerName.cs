@@ -1,4 +1,4 @@
-namespace OrderService.Domain.ValueObjects;
+namespace CustomerService.Domain.ValueObjects;
 
 public sealed record CustomerName
 {
