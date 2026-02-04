@@ -20,7 +20,7 @@ docker compose up -d     # CustomerService on localhost:5100, PostgreSQL on 5432
 docker compose down
 ```
 
-The test project is under `tests/` and is not included in the solution file — run it directly by path.
+All projects including tests are in the solution file — `dotnet build` and `dotnet test` work from the repo root.
 
 ## Solution Layout
 
