@@ -1,5 +1,6 @@
 using CustomerService.Domain.Exceptions;
 using CustomerService.Domain.ValueObjects;
+using OrderFlow.SharedKernel.ValueObjects;
 using SharedKernel.ValueObjects;
 
 namespace CustomerService.Domain.Aggregates;
@@ -12,9 +13,11 @@ public sealed class Customer
 	public DateTime? EmailLastChangedAtUtc { get; private set; }
 	public PhoneNumber? HomePhone { get; private set; }
     public PhoneNumber? MobilePhone { get; private set; }
-    public bool IsActive { get; private set; }
+	public bool IsActive { get; private set; }
+	public Address? BillingAddress { get; private set; }
+	public Address? ShippingAddress { get; private set; }
 
-    private Customer() { } // EF Core
+	private Customer() { } // EF Core
 
     private Customer(
         CustomerId id,
@@ -74,12 +77,18 @@ public sealed class Customer
 		MobilePhone = mobilePhone;
 	}
 
-    public void UpdateName(CustomerName newName)
+	public void UpdateName(CustomerName newName)
 	{
 		Name = newName;
 	}
 
-    public void Activate()
+	public void UpdateAddresses(Address? billingAddress, Address? shippingAddress)
+	{
+		BillingAddress = billingAddress;
+		ShippingAddress = shippingAddress;
+	}
+
+	public void Activate()
 	{
 		// Send domain event to notify other bounded contexts eventually
         IsActive = true;

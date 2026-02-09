@@ -55,7 +55,68 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 			.HasColumnName("is_active")
 			.IsRequired();
 
+		// TODO : Consider breaking apart Address into separate entities.
+		builder.OwnsOne(c => c.BillingAddress, address =>
+		{
+			address.Property(a => a.Street)
+				.HasColumnName("billing_street")
+				.HasMaxLength(200)
+				.IsRequired();
+
+			address.Property(a => a.City)
+				.HasColumnName("billing_city")
+				.HasMaxLength(100)
+				.IsRequired();
+
+			address.Property(a => a.State)
+				.HasColumnName("billing_state")
+				.HasMaxLength(100)
+				.IsRequired();
+
+			address.Property(a => a.PostalCode)
+				.HasColumnName("billing_postal_code")
+				.HasMaxLength(20)
+				.IsRequired();
+
+			address.Property(a => a.Country)
+				.HasColumnName("billing_country")
+				.HasMaxLength(100)
+				.IsRequired();
+		});
+
+		// ShippingAddress - Owned Entity (complex type)
+		builder.OwnsOne(c => c.ShippingAddress, address =>
+		{
+			address.Property(a => a.Street)
+				.HasColumnName("shipping_street")
+				.HasMaxLength(200)
+				.IsRequired();
+
+			address.Property(a => a.City)
+				.HasColumnName("shipping_city")
+				.HasMaxLength(100)
+				.IsRequired();
+
+			address.Property(a => a.State)
+				.HasColumnName("shipping_state")
+				.HasMaxLength(100)
+				.IsRequired();
+
+			address.Property(a => a.PostalCode)
+				.HasColumnName("shipping_postal_code")
+				.HasMaxLength(20)
+				.IsRequired();
+
+			address.Property(a => a.Country)
+				.HasColumnName("shipping_country")
+				.HasMaxLength(100)
+				.IsRequired();
+		});
+
 		// Index for email lookups
 		builder.HasIndex(c => c.Email).IsUnique();
+		
+		builder.HasIndex(c => c.IsActive)
+			.HasDatabaseName("ix_customers_is_active");
 	}
 }
