@@ -120,7 +120,7 @@ Each service follows **clean architecture**: Domain → Application → Infrastr
 - [x] Docker Compose (CustomerService + PostgreSQL)
 - [x] Domain unit tests passing (xUnit + FluentAssertions)
 - [x] REST API with FluentValidation
-- [ ] `Address` value object on Customer aggregate
+- [x] `Address` value object on Customer aggregate
 - [ ] OrderService domain model (`Order` aggregate with states: Draft → Placed → Confirmed → Completed → Cancelled)
 - [ ] Order value objects: `OrderId`, `Money`, `OrderLine`
 - [ ] Order state machine with invariant enforcement
