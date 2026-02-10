@@ -1,6 +1,7 @@
 using CustomerService.Domain.Exceptions;
 using CustomerService.Domain.ValueObjects;
 using OrderFlow.SharedKernel.ValueObjects;
+using SharedKernel.ValueObjects;
 
 namespace CustomerService.Domain.Aggregates;
 

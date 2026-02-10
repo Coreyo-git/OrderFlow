@@ -1,4 +1,4 @@
-namespace CustomerService.Domain.ValueObjects;
+namespace SharedKernel.ValueObjects;
 
 public sealed record CustomerId
 {

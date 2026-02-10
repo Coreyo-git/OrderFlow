@@ -1,9 +1,9 @@
 using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.Interfaces;
-using CustomerService.Domain.ValueObjects;
 using CustomerService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using OrderFlow.SharedKernel.ValueObjects;
+using SharedKernel.ValueObjects;
 
 namespace CustomerService.Infrastructure.Repositories;
 
