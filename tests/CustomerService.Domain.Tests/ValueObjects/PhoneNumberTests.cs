@@ -1,5 +1,5 @@
 using FluentAssertions;
-using SharedKernel.ValueObjects;
+using OrderFlow.SharedKernel.ValueObjects;
 
 namespace CustomerService.Domain.Tests.ValueObjects;
 

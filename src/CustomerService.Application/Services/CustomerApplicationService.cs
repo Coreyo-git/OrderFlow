@@ -3,7 +3,7 @@ using CustomerService.Application.Interfaces;
 using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.Interfaces;
 using CustomerService.Domain.ValueObjects;
-using SharedKernel.ValueObjects;
+using OrderFlow.SharedKernel.ValueObjects;
 
 namespace CustomerService.Application.Services;
 

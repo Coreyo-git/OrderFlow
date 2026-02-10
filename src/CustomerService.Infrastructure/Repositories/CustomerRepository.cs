@@ -3,7 +3,7 @@ using CustomerService.Domain.Interfaces;
 using CustomerService.Domain.ValueObjects;
 using CustomerService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.ValueObjects;
+using OrderFlow.SharedKernel.ValueObjects;
 
 namespace CustomerService.Infrastructure.Repositories;
 

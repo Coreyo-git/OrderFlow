@@ -2,7 +2,7 @@ using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.Exceptions;
 using CustomerService.Domain.ValueObjects;
 using FluentAssertions;
-using SharedKernel.ValueObjects;
+using OrderFlow.SharedKernel.ValueObjects;
 
 namespace CustomerService.Domain.Tests.Aggregates;
 

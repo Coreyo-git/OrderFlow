@@ -1,6 +1,4 @@
-using OrderFlow.SharedKernel.ValueObjects;
-
-namespace CustomerService.Domain.ValueObjects;
+namespace OrderFlow.SharedKernel.ValueObjects;
 
 public sealed partial record Address
 {
