@@ -3,7 +3,6 @@ using CustomerService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OrderFlow.SharedKernel.ValueObjects;
-using OrderFlow.SharedKernel.ValueObjects;
 
 namespace CustomerService.Infrastructure.Persistence.Configurations;
 
@@ -62,14 +61,6 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 		// TODO : Consider breaking apart Address into separate entities.
 		builder.OwnsOne(c => c.BillingAddress, address =>
 		{
-			// AddressId value object conversion
-			address.Property(a => a.Id)
-				.HasColumnName("business_address_id")
-				.HasConversion(
-					id => id.Value,
-					value => AddressId.From(value))  
-				.IsRequired();
-
 			address.Property(a => a.Street)
 				.HasColumnName("billing_street")
 				.HasMaxLength(200)
@@ -99,14 +90,6 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 		// ShippingAddress - Owned Entity (complex type)
 		builder.OwnsOne(c => c.ShippingAddress, address =>
 		{
-			// AddressId value object conversion
-			address.Property(a => a.Id)
-				.HasColumnName("shipping_address_id")
-				.HasConversion(
-					id => id.Value,
-					value => AddressId.From(value))
-				.IsRequired();
-
 			address.Property(a => a.Street)
 				.HasColumnName("shipping_street")
 				.HasMaxLength(200)

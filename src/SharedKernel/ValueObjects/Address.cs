@@ -2,16 +2,14 @@ namespace OrderFlow.SharedKernel.ValueObjects;
 
 public sealed partial record Address
 {
-	public AddressId Id { get; }
 	public string Street { get; }
 	public string City { get; }
 	public string State { get; }
 	public string PostalCode { get; }
 	public string Country { get; }
 
-	private Address(AddressId id, string street, string city, string state, string postalCode, string country)
+	private Address(string street, string city, string state, string postalCode, string country)
 	{
-		Id = id;
 		Street = street;
 		City = city;
 		State = state;
@@ -33,7 +31,6 @@ public sealed partial record Address
 			throw new ArgumentException("Country cannot be empty.", nameof(country));
 
 		return new Address(
-			AddressId.Create(),
 			street.Trim(),
 			city.Trim(),
 			state?.Trim() ?? string.Empty,
