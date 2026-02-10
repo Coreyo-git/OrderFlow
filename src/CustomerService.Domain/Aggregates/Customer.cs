@@ -82,7 +82,7 @@ public sealed class Customer
 		Name = newName;
 	}
 
-	public void UpdateAddresses(Address? billingAddress, Address? shippingAddress)
+	public void UpdateAddressDetails(Address? billingAddress, Address? shippingAddress)
 	{
 		BillingAddress = billingAddress;
 		ShippingAddress = shippingAddress;
