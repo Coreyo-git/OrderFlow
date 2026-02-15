@@ -1,0 +1,12 @@
+# This Dockerfile is optimized for CI/CD. It expects the .NET project to be
+# published BEFORE the docker build command is run.
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+EXPOSE 8080
+
+# Copy the pre-published application files from the build context.
+# The CI workflow will provide these files as an artifact.
+COPY . .
+
+ENTRYPOINT ["dotnet", "CustomerService.dll"]

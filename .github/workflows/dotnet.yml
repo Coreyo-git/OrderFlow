@@ -1,8 +1,8 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+# separates build, test, and docker steps into distinct jobs and uses artifacts to pass published output.
 
-name: .NET
+name: .NET CI
 
+# triggers for this workflow.
 on:
     push:
         branches: ["master"]
@@ -10,29 +10,91 @@ on:
         branches: ["master"]
 
 jobs:
+    # Builds services and publishes their outputs as artifacts.
     build:
+        name: Build & Publish
         runs-on: ubuntu-latest
-
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
             - name: Setup .NET
               uses: actions/setup-dotnet@v4
               with:
                   dotnet-version: 9.0.x
+
             - name: Restore dependencies
               run: dotnet restore
-            - name: Build
-              run: dotnet build --no-restore
-            - name: Test
-              run: dotnet test --no-build --verbosity normal
 
-    docker:
-        needs: build
+            - name: Build
+              run: dotnet build --no-restore --configuration Release
+
+            # --- Publish CustomerService ---
+            - name: Publish CustomerService
+              run: dotnet publish src/CustomerService/CustomerService.csproj --configuration Release --output ./app/publish-customerservice
+            - name: Upload CustomerService artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: customerservice-publish
+                  path: ./app/publish-customerservice
+
+            # --- Publish OrderService ---
+            - name: Publish OrderService
+              run: dotnet publish src/OrderService/OrderService.csproj --configuration Release --output ./app/publish-orderservice
+            - name: Upload OrderService artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: orderservice-publish
+                  path: ./app/publish-orderservice
+
+    # Runs tests against the codebase.
+    test:
+        name: Test
+        needs: build # ensures it only runs after the build job is successful.
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: 9.0.x
+
+            - name: Run tests
+              run: dotnet test --verbosity normal
+
+    # Builds and pushes a Docker image for each service defined in the matrix.
+    build-and-push-docker:
+        name: Build & Push Docker for ${{ matrix.service_name }}
+        
+        needs: [build, test] # Ensures this only runs if both jobs succeed.
+        # only runs on pushes to master, not on pull requests.
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
-
+        # Defines a matrix set of configurations. The job will run once for each configuration.
+		# Only need to expend include section and follow convention for future services.
+        strategy:
+            matrix:
+                include:
+                    - service_name: customerservice
+                      artifact_name: customerservice-publish
+                      artifact_path: ./app/publish-customerservice
+                      dockerfile: src/CustomerService/Dockerfile.ci
+                    - service_name: orderservice
+                      artifact_name: orderservice-publish
+                      artifact_path: ./app/publish-orderservice
+                      dockerfile: src/OrderService/Dockerfile.ci
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # Download the correct published output artifact based on the matrix configuration.
+            - name: Download publish artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: ${{ matrix.artifact_name }}
+                  path: ${{ matrix.artifact_path }}
 
             - name: Log in to Docker Hub
               uses: docker/login-action@v3
@@ -41,12 +103,13 @@ jobs:
                   username: ${{ secrets.DOCKER_USERNAME }}
                   password: ${{ secrets.DOCKER_PASSWORD }}
 
+            # Build and push the Docker image.
             - name: Build and push Docker image
               uses: docker/build-push-action@v6
               with:
-                  context: .
-                  file: src/CustomerService/Dockerfile
+                  context: ${{ matrix.artifact_path }}
+                  file: ${{ matrix.dockerfile }}
                   push: true
                   tags: |
-                      coreyo96/orderflow:latest
-                      coreyo96/orderflow:${{ github.sha }}
+                      coreyo96/orderflow-${{ matrix.service_name }}:latest
+                      coreyo96/orderflow-${{ matrix.service_name }}:${{ github.sha }}
