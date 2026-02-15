@@ -2,6 +2,9 @@ using OrderService.Domain.Exceptions;
 
 namespace OrderService.Domain.ValueObjects;
 
+/// <summary>
+/// Represents a monetary value.
+/// </summary>
 public sealed record Money
 {
 	public string Currency { get; } = string.Empty;
@@ -13,6 +16,13 @@ public sealed record Money
 		Quantity = quantity;
 	}
 
+	/// <summary>
+	/// Creates a new <see cref="Money"/> instance.
+	/// </summary>
+	/// <param name="currency">The currency code.</param>
+	/// <param name="quantity">The monetary amount.</param>
+	/// <returns>A new <see cref="Money"/> instance.</returns>
+	/// <exception cref="ArgumentException">Thrown when currency is null/empty or quantity is not greater than 0.</exception>
 	public static Money From(string currency, decimal quantity)
 	{
 		if (string.IsNullOrEmpty(currency))
@@ -25,5 +35,9 @@ public sealed record Money
 		return new Money(currencyTrimmed, quantity);
 	}
 
+	/// <summary>
+	/// Returns the string representation of the monetary value.
+	/// </summary>
+	/// <returns>The formatted monetary value.</returns>
 	public override string ToString() => $"{Quantity.ToString("C")} {Currency}";
 }
