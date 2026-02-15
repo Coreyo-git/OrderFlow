@@ -2,8 +2,6 @@ using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using OrderFlow.SharedKernel.ValueObjects;
-using SharedKernel.ValueObjects;
 
 namespace CustomerService.Infrastructure.Persistence.Configurations;
 

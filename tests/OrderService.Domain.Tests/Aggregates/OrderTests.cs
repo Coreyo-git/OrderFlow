@@ -1,6 +1,5 @@
 using FluentAssertions;
 using OrderService.Domain.Aggregates;
-using SharedKernel.ValueObjects;
 using OrderService.Domain.Enums; // Add this for OrderStatus
 using OrderService.Domain.ValueObjects; // Add this for ValueObjects
 

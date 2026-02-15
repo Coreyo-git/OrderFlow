@@ -1,4 +1,4 @@
-namespace OrderFlow.Domain.Interfaces;
+namespace SharedKernel.Interfaces;
 
 public interface IDomainEvent
 {

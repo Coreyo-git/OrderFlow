@@ -1,8 +1,5 @@
 using OrderService.Domain.Enums;
 using OrderService.Domain.ValueObjects;
-using OrderFlow.SharedKernel.ValueObjects;
-using SharedKernel.ValueObjects;
-using System.Collections.Generic;
 
 namespace OrderService.Domain.Aggregates;
 

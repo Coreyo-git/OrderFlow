@@ -1,6 +1,5 @@
 using CustomerService.Domain.Aggregates;
-using OrderFlow.SharedKernel.ValueObjects;
-using SharedKernel.ValueObjects;
+using CustomerService.Domain.ValueObjects;
 
 namespace CustomerService.Domain.Interfaces;
 

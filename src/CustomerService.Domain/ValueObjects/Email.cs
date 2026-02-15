@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace OrderFlow.SharedKernel.ValueObjects;
+namespace CustomerService.Domain.ValueObjects;
 
 public sealed partial record Email
 {
