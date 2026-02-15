@@ -1,4 +1,5 @@
 services:
+  # --- Customer Service ---
   customerservice:
     build:
       context: .
@@ -7,12 +8,12 @@ services:
       - "5100:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__CustomerDb=Host=postgres;Database=customerdb;Username=orderflow;Password=orderflow_dev
+      - ConnectionStrings__CustomerDb=Host=postgres-customers;Database=customerdb;Username=orderflow;Password=orderflow_dev
     depends_on:
-      postgres:
+      postgres-customers:
         condition: service_healthy
 
-  postgres:
+  postgres-customers:
     image: postgres:16-alpine
     ports:
       - "5432:5432"
@@ -21,12 +22,43 @@ services:
       - POSTGRES_PASSWORD=orderflow_dev
       - POSTGRES_DB=customerdb
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_customer_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U orderflow -d customerdb"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  # --- Order Service ---
+  orderservice:
+    build:
+      context: .
+      dockerfile: src/OrderService/Dockerfile
+    ports:
+      - "5200:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__OrderDb=Host=postgres-orders;Database=orderdb;Username=orderflow;Password=orderflow_dev
+    depends_on:
+      postgres-orders:
+        condition: service_healthy
+
+  postgres-orders:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432" # Use a different host port to avoid conflicts
+    environment:
+      - POSTGRES_USER=orderflow
+      - POSTGRES_PASSWORD=orderflow_dev
+      - POSTGRES_DB=orderdb
+    volumes:
+      - postgres_order_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orderflow -d orderdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
-  postgres_data:
+  postgres_customer_data:
+  postgres_order_data:
