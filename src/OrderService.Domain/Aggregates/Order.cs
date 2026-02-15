@@ -25,64 +25,48 @@ public sealed class Order
 	/// <summary>
 	/// Gets a read-only collection of items included in the order.
 	/// </summary>
-	public IReadOnlyCollection<OrderItem> OrderItems => _orderItems; 
+	public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
+	public Address ShippingAddress { get; private set; }
+	public Address? BillingAddress { get; private set; }
 
 	/// <summary>
-	/// Sets the initial status to Draft and generates a new OrderId.
+	/// Private constructor for creating a new order.
+	/// Sets the initial status to Placed and generates a new OrderId.
 	/// </summary>
-	/// <param name="customerId">The identifier of the customer.</param>
-	private Order(CustomerId customerId)
+	private Order(CustomerId customerId, Address shippingAddress, Address? billingAddress)
 	{
 		Id = OrderId.Create();
-		Status = OrderStatus.Draft;
+		Status = OrderStatus.Placed; // Orders are now created directly in the Placed state.
 		CustomerId = customerId;
+		ShippingAddress = shippingAddress;
+		BillingAddress = billingAddress;
 	}
 
 	/// <summary>
-	/// Creates a new order instance.
+	/// Creates a new order instance atomically with all its items.
 	/// </summary>
 	/// <param name="customerId">The customer identifier.</param>
-	/// <returns>A new <see cref="Order"/> instance initialized in the Draft status.</returns>
-	public static Order Create(CustomerId customerId)
+	/// <param name="shippingAddress">The customer's shipping address.</param>
+	/// <param name="billingAddress">The customer's billing address (optional).</param>
+	/// <param name="products">A collection of products to be included in the order.</param>
+	/// <returns>A new <see cref="Order"/> instance initialized in the Placed status.</returns>
+	/// <exception cref="DomainException">Thrown if the product list is null or empty.</exception>
+	public static Order Create(CustomerId customerId, Address shippingAddress, Address? billingAddress, IReadOnlyCollection<Product> products)
 	{
-		return new Order(customerId);
-	}
-
-	/// <summary>
-	/// Adds a new item to the order.
-	/// Items can only be added when the order is in the Draft status.
-	/// </summary>
-	/// <param name="product">The product to add.</param>
-	/// <exception cref="DomainException">Thrown if items are added when the order is not in Draft status.</exception>
-	public void AddItem(Product product)
-	{
-		if (Status != OrderStatus.Draft)
+		if (products is not { Count: > 0 })
 		{
-			throw new DomainException($"Cannot add an item to an order in {Status} state.");
+			throw new DomainException("An order must contain at least one item.");
+		}
+		
+		var order = new Order(customerId, shippingAddress, billingAddress);
+
+		foreach (var product in products)
+		{
+			var orderItem = OrderItem.Create(Guid.NewGuid(), order.Id, product.Id, product.Price);
+			order._orderItems.Add(orderItem);
 		}
 
-		var orderItemToAdd = OrderItem.Create(Guid.NewGuid(), Id, product.Id, product.Price);
-
-		_orderItems.Add(orderItemToAdd);
-	}
-
-	/// <summary>
-	/// Places the order, transitioning it from Draft to Placed status.
-	/// An order can only be placed if it is currently in Draft status and contains items.
-	/// </summary>
-	/// <exception cref="DomainException">Thrown if the order is not in Draft status or has no items.</exception>
-	public void PlaceOrder()
-	{
-		if (Status != OrderStatus.Draft)
-		{
-			throw new DomainException("Only a draft order can be placed.");
-		}
-		if (_orderItems.Count <= 0)
-		{
-			throw new DomainException("Order can not be placed without items.");
-		}
-
-		Status = OrderStatus.Placed;
+		return order;
 	}
 
 	/// <summary>

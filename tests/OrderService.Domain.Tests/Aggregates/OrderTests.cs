@@ -1,16 +1,22 @@
 using FluentAssertions;
 using OrderService.Domain.Aggregates;
-using OrderService.Domain.Enums; // Add this for OrderStatus
-using OrderService.Domain.ValueObjects; // Add this for ValueObjects
+using OrderService.Domain.Enums;
+using OrderService.Domain.Exceptions;
+using OrderService.Domain.ValueObjects;
 
 namespace OrderService.Domain.Tests.Aggregates;
 
-public class OrderTests()
+public class OrderTests
 {
-	private static Order CreateTestOrder()
-	{
-		return Order.Create(CustomerId.From(Guid.NewGuid()));
-	}
+    private static Address CreateTestAddress(
+        string street = "123 Main St",
+        string city = "Anytown",
+        string state = "CA",
+        string zipCode = "90210",
+        string country = "USA")
+    {
+        return Address.From(street, city, state, zipCode, country);
+    }
 
     private static Product CreateTestProduct(
         ProductId? productId = null,
@@ -26,108 +32,218 @@ public class OrderTests()
             Sku.Create(sku));
     }
 
-    private static OrderItem CreateTestOrderItem(
-        Guid? orderItemId = null,
-        OrderId? orderId = null,
-        ProductId? productId = null,
-        decimal price = 10.99m,
-        string currency = "AUD")
+    private static Order CreateTestOrder(
+        CustomerId? customerId = null,
+        Address? shippingAddress = null,
+        Address? billingAddress = null,
+        IReadOnlyCollection<Product>? products = null)
     {
-        return OrderItem.Create(
-            orderItemId ?? Guid.NewGuid(),
-            orderId ?? OrderId.From(Guid.NewGuid()),
-            productId ?? ProductId.Create(),
-            Money.From(currency, price));
+        var testCustomerId = customerId ?? CustomerId.From(Guid.NewGuid());
+        var testShippingAddress = shippingAddress ?? CreateTestAddress();
+        var testProducts = products ?? [CreateTestProduct()];
+
+        return Order.Create(testCustomerId, testShippingAddress, billingAddress, testProducts);
     }
 
-	[Fact]
-	public void Should_create_order_with_valid_data()
-	{
-		// Arrange
-		var customer_id = CustomerId.From(Guid.NewGuid());
+    [Fact]
+    public void Should_create_order_with_valid_data_and_status_placed()
+    {
+        // Arrange
+        var customerId = CustomerId.From(Guid.NewGuid());
+        var shippingAddress = CreateTestAddress();
+        var product = CreateTestProduct();
+        var products = new List<Product> { product };
 
-		// Act
-		var order = Order.Create(customer_id);
+        // Act
+        var order = Order.Create(customerId, shippingAddress, null, products);
 
-		// Assert
-		order.Status.Should().Be(OrderStatus.Draft);
-	}
+        // Assert
+        order.Should().NotBeNull();
+        order.Id.Should().NotBeNull();
+        order.CustomerId.Should().Be(customerId);
+        order.Status.Should().Be(OrderStatus.Placed);
+        order.ShippingAddress.Should().Be(shippingAddress);
+        order.OrderItems.Should().HaveCount(1);
+        order.OrderItems.First().ProductId.Should().Be(product.Id);
+    }
 
-	[Fact]
-	public void Should_create_order_with_valid_order_items()
-	{
-		// Arrange
-		var customer_id = CustomerId.From(Guid.NewGuid());
-		var order = Order.Create(customer_id);
-		var product_id = ProductId.From(Guid.NewGuid());
-		var product_price = 15.50m;
-		var product = CreateTestProduct(productId: product_id, price: product_price);
+    [Fact]
+    public void Should_create_order_with_multiple_items()
+    {
+        // Arrange
+        var customerId = CustomerId.From(Guid.NewGuid());
+        var shippingAddress = CreateTestAddress();
+        var product1 = CreateTestProduct(name: "Product A", price: 10m);
+        var product2 = CreateTestProduct(name: "Product B", price: 20m);
+        var products = new List<Product> { product1, product2 };
 
-		// Act
-		order.AddItem(product);
+        // Act
+        var order = Order.Create(customerId, shippingAddress, null, products);
 
-		// Assert
-		order.OrderItems.Should().HaveCount(1);
-		order.OrderItems.Should().ContainSingle(oi =>
-			oi.ProductId == product_id &&
-			oi.Price.Quantity == product_price);
-	}
+        // Assert
+        order.OrderItems.Should().HaveCount(2);
+        order.OrderItems.Should().Contain(oi => oi.ProductId == product1.Id);
+        order.OrderItems.Should().Contain(oi => oi.ProductId == product2.Id);
+    }
 
-	[Fact]
-	public void Should_update_order_status_correctly()
-	{
-		// Arrange
-		var order = CreateTestOrder(); // Order is in Draft status initially
+    [Fact]
+    public void Should_throw_exception_when_creating_order_with_no_products()
+    {
+        // Arrange
+        var customerId = CustomerId.From(Guid.NewGuid());
+        var shippingAddress = CreateTestAddress();
+        var emptyProducts = new List<Product>();
 
-		// Act
-		order.UpdateOrderStatus(OrderStatus.Placed);
+        // Act
+        Action act = () => Order.Create(customerId, shippingAddress, null, emptyProducts);
 
-		// Assert
-		order.Status.Should().Be(OrderStatus.Placed);
-	}
+        // Assert
+        act.Should().Throw<DomainException>().WithMessage("An order must contain at least one item.");
+    }
 
-	[Fact]
-	public void Should_add_multiple_distinct_items_to_order()
-	{
-		// Arrange
-		var order = CreateTestOrder();
-		var product1_id = ProductId.From(Guid.NewGuid());
-		var product1_price = 10.00m;
-		var product1 = CreateTestProduct(productId: product1_id, name: "Product 1", price: product1_price);
+    [Fact]
+    public void Should_confirm_order_successfully_from_placed_status()
+    {
+        // Arrange
+        var order = CreateTestOrder(); // Status is Placed by default
 
-		var product2_id = ProductId.From(Guid.NewGuid());
-		var product2_price = 20.00m;
-		var product2 = CreateTestProduct(productId: product2_id, name: "Product 2", price: product2_price);
+        // Act
+        order.ConfirmOrder();
 
-		// Act
-		order.AddItem(product1);
-		order.AddItem(product2);
+        // Assert
+        order.Status.Should().Be(OrderStatus.Confirmed);
+    }
 
-		// Assert
-		order.OrderItems.Should().HaveCount(2);
-		order.OrderItems.Should().Contain(oi => oi.ProductId == product1_id && oi.Price.Quantity == product1_price);
-		order.OrderItems.Should().Contain(oi => oi.ProductId == product2_id && oi.Price.Quantity == product2_price);
-	}
+    [Fact]
+    public void Should_not_confirm_order_if_not_placed()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.ConfirmOrder(); // Order is now Confirmed
 
-	[Fact]
-	public void Should_add_the_same_product_multiple_times()
-	{
-		// Arrange
-		var order = CreateTestOrder();
-		var product_id = ProductId.From(Guid.NewGuid());
-		var product_price = 5.00m;
-		var product = CreateTestProduct(productId: product_id, name: "Single Product", price: product_price);
+        // Act
+        Action act = () => order.ConfirmOrder();
 
-		// Act
-		order.AddItem(product);
-		order.AddItem(product);
+        // Assert
+        act.Should().Throw<DomainException>().WithMessage("Only a placed order can be confirmed.");
+    }
 
-		// Assert
-		order.OrderItems.Should().HaveCount(2);
-		order.OrderItems.Should().AllSatisfy(oi =>
-		{
-			oi.ProductId.Should().Be(product_id);
-			oi.Price.Quantity.Should().Be(product_price);
-		});
-	}
+    [Fact]
+    public void Should_ship_order_successfully_from_confirmed_status()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.ConfirmOrder(); // Order is now Confirmed
+
+        // Act
+        order.ShipOrder();
+
+        // Assert
+        order.Status.Should().Be(OrderStatus.Shipped);
+    }
+
+    [Fact]
+    public void Should_not_ship_order_if_not_confirmed()
+    {
+        // Arrange
+        var order = CreateTestOrder(); // Order is Placed
+        
+        // Act
+        Action act = () => order.ShipOrder();
+
+        // Assert
+        act.Should().Throw<DomainException>().WithMessage("Only a confirmed order can be shipped.");
+    }
+
+    [Fact]
+    public void Should_complete_order_successfully_from_shipped_status()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.ConfirmOrder();
+        order.ShipOrder(); // Order is now Shipped
+
+        // Act
+        order.CompleteOrder();
+
+        // Assert
+        order.Status.Should().Be(OrderStatus.Completed);
+    }
+
+    [Fact]
+    public void Should_not_complete_order_if_not_shipped()
+    {
+        // Arrange
+        var order = CreateTestOrder(); // Order is Placed
+        
+        // Act
+        Action act = () => order.CompleteOrder();
+
+        // Assert
+        act.Should().Throw<DomainException>().WithMessage("Only a shipped order can be completed");
+    }
+
+    [Fact]
+    public void Should_cancel_order_successfully_from_placed_or_confirmed()
+    {
+        // Arrange 1: Placed order
+        var placedOrder = CreateTestOrder();
+
+        // Act 1
+        placedOrder.CancelOrder();
+
+        // Assert 1
+        placedOrder.Status.Should().Be(OrderStatus.Cancelled);
+
+        // Arrange 2: Confirmed order
+        var confirmedOrder = CreateTestOrder();
+        confirmedOrder.ConfirmOrder();
+
+        // Act 2
+        confirmedOrder.CancelOrder();
+
+        // Assert 2
+        confirmedOrder.Status.Should().Be(OrderStatus.Cancelled);
+    }
+
+    [Fact]
+    public void Should_not_cancel_order_if_shipped_or_completed()
+    {
+        // Arrange 1: Shipped order
+        var shippedOrder = CreateTestOrder();
+        shippedOrder.ConfirmOrder();
+        shippedOrder.ShipOrder();
+
+        // Act 1
+        Action act1 = () => shippedOrder.CancelOrder();
+
+        // Assert 1
+        act1.Should().Throw<DomainException>().WithMessage($"Cannot cancel an order that is already {OrderStatus.Shipped}.");
+
+        // Arrange 2: Completed order
+        var completedOrder = CreateTestOrder();
+        completedOrder.ConfirmOrder();
+        completedOrder.ShipOrder();
+        completedOrder.CompleteOrder();
+
+        // Act 2
+        Action act2 = () => completedOrder.CancelOrder();
+
+        // Assert 2
+        act2.Should().Throw<DomainException>().WithMessage($"Cannot cancel an order that is already {OrderStatus.Completed}.");
+    }
+
+    [Fact]
+    public void Should_do_nothing_if_order_already_cancelled()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.CancelOrder(); // Cancel it once
+
+        // Act
+        order.CancelOrder(); // Try to cancel again
+
+        // Assert
+        order.Status.Should().Be(OrderStatus.Cancelled); // Should remain Cancelled
+    }
 }

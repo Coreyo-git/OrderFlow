@@ -3,10 +3,6 @@ namespace OrderService.Domain.Enums;
 public enum OrderStatus
 {
 	/// <summary>
-	/// The order is in its initial stage, typically when a user is building their cart on the frontend.
-	/// </summary>
-	Draft,
-	/// <summary>
 	/// The user has submitted the order, and it is awaiting processing by the Payment Service.
 	/// </summary>
 	Placed,
