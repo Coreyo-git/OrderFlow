@@ -124,7 +124,7 @@ Each service follows **clean architecture**: Domain → Application → Infrastr
 - [x] OrderService domain model (`Order` aggregate with states: Draft → Placed → Confirmed → Completed → Cancelled)
 - [x] Order value objects: `OrderId`, `Money`, `OrderLine`
 - [x] Order state machine with invariant enforcement
-- [ ] Unit tests for Order aggregate invariants
+- [x] Unit tests for Order aggregate invariants
 
 ---
 
