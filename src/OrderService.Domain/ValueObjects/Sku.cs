@@ -20,7 +20,13 @@ public sealed record Sku
 	{
 		if (string.IsNullOrEmpty(value))
 			throw new ArgumentException("Sku creation value cannot be null or empty.");
-			
+
 		return new Sku(value);
 	}
+
+	/// <summary>
+	/// Returns the string representation of the SKU.
+	/// </summary>
+	/// <returns>The SKU as a string.</returns>
+	public override string ToString() => Value.ToString();
 }
