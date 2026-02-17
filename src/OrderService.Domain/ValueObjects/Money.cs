@@ -1,3 +1,4 @@
+using System.Globalization;
 using OrderService.Domain.Exceptions;
 
 namespace OrderService.Domain.ValueObjects;
@@ -40,4 +41,15 @@ public sealed record Money
 	/// </summary>
 	/// <returns>The formatted monetary value.</returns>
 	public override string ToString() => $"{Quantity.ToString("C")} {Currency}";
+
+	/// <summary>
+	/// Returns the string representation of the monetary value.
+	/// </summary>
+	/// <param name="culture">The culture to use for formatting.</param>
+	/// <returns>The formatted monetary value.</returns>
+	public string ToString(Culture culture)
+	{
+		var cultureInfo = new CultureInfo(culture.Value);
+		return $"{Quantity.ToString("C", cultureInfo)} {Currency}";
+	}
 }

@@ -69,7 +69,23 @@ public class MoneyTests
         // Assert
         result.Should().Contain("123.45"); 
         result.Should().Contain("AUD");
-        result.Should().Contain("$"); 
+		result.Should().Contain("$");
+    }
+
+    [Fact]
+    public void Should_return_correct_string_representation_with_culture()
+    {
+        // Arrange
+        var money = Money.From("AUD", 123.45m);
+        var culture = Culture.From("en-AU");
+
+        // Act
+        var result = money.ToString(culture);
+
+        // Assert
+        result.Should().Contain("123.45");
+        result.Should().Contain("AUD");
+        result.Should().Contain("$");
     }
 
     [Fact]

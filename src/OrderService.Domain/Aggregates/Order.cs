@@ -28,18 +28,20 @@ public sealed class Order
 	public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
 	public Address ShippingAddress { get; private set; }
 	public Address? BillingAddress { get; private set; }
+	public Culture Culture { get; private set; }
 
 	/// <summary>
 	/// Private constructor for creating a new order.
 	/// Sets the initial status to Placed and generates a new OrderId.
 	/// </summary>
-	private Order(CustomerId customerId, Address shippingAddress, Address? billingAddress)
+	private Order(CustomerId customerId, Address shippingAddress, Address? billingAddress, Culture culture)
 	{
 		Id = OrderId.Create();
 		Status = OrderStatus.Placed; // Orders are now created directly in the Placed state.
 		CustomerId = customerId;
 		ShippingAddress = shippingAddress;
 		BillingAddress = billingAddress;
+		Culture = culture;
 	}
 
 	/// <summary>
@@ -48,17 +50,18 @@ public sealed class Order
 	/// <param name="customerId">The customer identifier.</param>
 	/// <param name="shippingAddress">The customer's shipping address.</param>
 	/// <param name="billingAddress">The customer's billing address (optional).</param>
+	/// <param name="culture">The culture for the order.</param>
 	/// <param name="products">A collection of products to be included in the order.</param>
 	/// <returns>A new <see cref="Order"/> instance initialized in the Placed status.</returns>
 	/// <exception cref="DomainException">Thrown if the product list is null or empty.</exception>
-	public static Order Create(CustomerId customerId, Address shippingAddress, Address? billingAddress, IReadOnlyCollection<Product> products)
+	public static Order Create(CustomerId customerId, Address shippingAddress, Address? billingAddress, Culture culture, IReadOnlyCollection<Product> products)
 	{
 		if (products is not { Count: > 0 })
 		{
 			throw new DomainException("An order must contain at least one item.");
 		}
 		
-		var order = new Order(customerId, shippingAddress, billingAddress);
+		var order = new Order(customerId, shippingAddress, billingAddress, culture);
 
 		foreach (var product in products)
 		{
