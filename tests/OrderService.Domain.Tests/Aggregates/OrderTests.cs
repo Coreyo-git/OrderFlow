@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
+
 using FluentAssertions;
+
 using OrderService.Domain.Aggregates;
 using OrderService.Domain.Enums;
 using OrderService.Domain.Exceptions;
@@ -34,18 +36,18 @@ public class OrderTests
     }
 
     private static Order CreateTestOrder(
-		CustomerId? customerId = null,
-		Address? shippingAddress = null,
-		Address? billingAddress = null,
-		IReadOnlyCollection<Product>? products = null,
-		Culture? culture = null)
+        CustomerId? customerId = null,
+        Address? shippingAddress = null,
+        Address? billingAddress = null,
+        IReadOnlyCollection<Product>? products = null,
+        Culture? culture = null)
     {
         var testCustomerId = customerId ?? CustomerId.From(Guid.NewGuid());
         var testShippingAddress = shippingAddress ?? CreateTestAddress();
-		var testProducts = products ?? [CreateTestProduct()];
-		var testCulture = culture ?? Culture.From("en-AU");
+        var testProducts = products ?? [CreateTestProduct()];
+        var testCulture = culture ?? Culture.From("en-AU");
 
-		return Order.Create(testCustomerId, testShippingAddress, billingAddress, testCulture, testProducts);
+        return Order.Create(testCustomerId, testShippingAddress, billingAddress, testCulture, testProducts);
     }
 
     [Fact]
@@ -55,11 +57,11 @@ public class OrderTests
         var customerId = CustomerId.From(Guid.NewGuid());
         var shippingAddress = CreateTestAddress();
         var product = CreateTestProduct();
-		var products = new List<Product> { product };
-		var culture = Culture.From("en-AU");
+        var products = new List<Product> { product };
+        var culture = Culture.From("en-AU");
 
-		// Act
-		var order = Order.Create(customerId, shippingAddress, null, culture, products);
+        // Act
+        var order = Order.Create(customerId, shippingAddress, null, culture, products);
 
         // Assert
         order.Should().NotBeNull();
@@ -79,11 +81,11 @@ public class OrderTests
         var shippingAddress = CreateTestAddress();
         var product1 = CreateTestProduct(name: "Product A", price: 10m);
         var product2 = CreateTestProduct(name: "Product B", price: 20m);
-		var products = new List<Product> { product1, product2 };
-		var culture = Culture.From("en-AU");
+        var products = new List<Product> { product1, product2 };
+        var culture = Culture.From("en-AU");
 
-		// Act
-		var order = Order.Create(customerId, shippingAddress, null, culture, products);
+        // Act
+        var order = Order.Create(customerId, shippingAddress, null, culture, products);
 
         // Assert
         order.OrderItems.Should().HaveCount(2);
@@ -97,11 +99,11 @@ public class OrderTests
         // Arrange
         var customerId = CustomerId.From(Guid.NewGuid());
         var shippingAddress = CreateTestAddress();
-		var emptyProducts = new List<Product>();
-		var culture = Culture.From("en-AU");
+        var emptyProducts = new List<Product>();
+        var culture = Culture.From("en-AU");
 
-		// Act
-		Action act = () => Order.Create(customerId, shippingAddress, null, culture, emptyProducts);
+        // Act
+        Action act = () => Order.Create(customerId, shippingAddress, null, culture, emptyProducts);
 
         // Assert
         act.Should().Throw<DomainException>().WithMessage("An order must contain at least one item.");
@@ -153,7 +155,7 @@ public class OrderTests
     {
         // Arrange
         var order = CreateTestOrder(); // Order is Placed
-        
+
         // Act
         Action act = () => order.ShipOrder();
 
@@ -181,7 +183,7 @@ public class OrderTests
     {
         // Arrange
         var order = CreateTestOrder(); // Order is Placed
-        
+
         // Act
         Action act = () => order.CompleteOrder();
 

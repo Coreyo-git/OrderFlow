@@ -7,26 +7,26 @@ namespace OrderService.Domain.ValueObjects;
 /// </summary>
 public sealed record Sku
 {
-	private Sku(string value) => Value = value;
-	public string Value { get; }
+    private Sku(string value) => Value = value;
+    public string Value { get; }
 
-	/// <summary>
-	/// Creates a new <see cref="Sku"/> instance.
-	/// </summary>
-	/// <param name="value">The SKU value.</param>
-	/// <returns>A new <see cref="Sku"/> instance.</returns>
-	/// <exception cref="ArgumentException">Thrown when the value is null or empty.</exception>
-	public static Sku Create(string value)
-	{
-		if (string.IsNullOrEmpty(value))
-			throw new ArgumentException("Sku creation value cannot be null or empty.");
+    /// <summary>
+    /// Creates a new <see cref="Sku"/> instance.
+    /// </summary>
+    /// <param name="value">The SKU value.</param>
+    /// <returns>A new <see cref="Sku"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when the value is null or empty.</exception>
+    public static Sku Create(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            throw new ArgumentException("Sku creation value cannot be null or empty.");
 
-		return new Sku(value);
-	}
+        return new Sku(value);
+    }
 
-	/// <summary>
-	/// Returns the string representation of the SKU.
-	/// </summary>
-	/// <returns>The SKU as a string.</returns>
-	public override string ToString() => Value.ToString();
+    /// <summary>
+    /// Returns the string representation of the SKU.
+    /// </summary>
+    /// <returns>The SKU as a string.</returns>
+    public override string ToString() => Value.ToString();
 }

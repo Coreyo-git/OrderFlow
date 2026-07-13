@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using OrderService.Domain.ValueObjects;
 
 namespace OrderService.Domain.Tests.ValueObjects;
@@ -58,10 +59,10 @@ public class SkuTests
         var value = "SKU-XYZ";
         var sku = Sku.Create(value);
 
-		// Act
-		var result = sku.ToString();
-		
-		// Assert
+        // Act
+        var result = sku.ToString();
+
+        // Assert
         Assert.Equal(value, sku.ToString());
     }
 }

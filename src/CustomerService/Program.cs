@@ -5,7 +5,9 @@ using CustomerService.Domain.Interfaces;
 using CustomerService.Filters;
 using CustomerService.Infrastructure.Persistence;
 using CustomerService.Infrastructure.Repositories;
+
 using FluentValidation;
+
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers(options =>
 {
-	// Add global validation filter - validates all request bodies with FluentValidation
-	options.Filters.Add<ValidationFilter>();
+    // Add global validation filter - validates all request bodies with FluentValidation
+    options.Filters.Add<ValidationFilter>();
 });
 builder.Services.AddOpenApi();
 
@@ -23,7 +25,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateCustomerRequestValida
 
 // Add DbContext
 builder.Services.AddDbContext<CustomerDbContext>(options =>
-	options.UseNpgsql(builder.Configuration.GetConnectionString("CustomerDb")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("CustomerDb")));
 
 // Add repositories
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -36,7 +38,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
+    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();

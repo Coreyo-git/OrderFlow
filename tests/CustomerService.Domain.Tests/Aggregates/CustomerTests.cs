@@ -1,6 +1,7 @@
 using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.Exceptions;
 using CustomerService.Domain.ValueObjects;
+
 using FluentAssertions;
 
 namespace CustomerService.Domain.Tests.Aggregates;
@@ -144,8 +145,8 @@ public class CustomerTests
             var newEmail = Email.From("updated@example.com");
             var now = DateTime.UtcNow;
 
-			// Act
-			customer.UpdateContactDetails(newEmail, null, null, now);
+            // Act
+            customer.UpdateContactDetails(newEmail, null, null, now);
 
             // Assert
             customer.Email.Should().Be(newEmail);
@@ -221,76 +222,76 @@ public class CustomerTests
             customer.MobilePhone.Should().Be(mobilePhone);
         }
     }
-	public class UpdateAddressDetails()
-	{
-		[Fact]
-		public void Should_update_billing_and_shipping_addresses()
-		{
-			// Arrange
-			var customer = CreateTestCustomer();
-			var billingAddress = Address.From(
-				"123 Billing St", "Billtown", "State", "12345", "Country");
-			var shippingAddress = Address.From(
-				"456 Shipping Ave", "Shipville", "State", "67890", "Country");
+    public class UpdateAddressDetails()
+    {
+        [Fact]
+        public void Should_update_billing_and_shipping_addresses()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+            var billingAddress = Address.From(
+                "123 Billing St", "Billtown", "State", "12345", "Country");
+            var shippingAddress = Address.From(
+                "456 Shipping Ave", "Shipville", "State", "67890", "Country");
 
-			// Act
-			customer.UpdateAddressDetails(billingAddress, shippingAddress);
+            // Act
+            customer.UpdateAddressDetails(billingAddress, shippingAddress);
 
-			// Assert
-			customer.BillingAddress.Should().Be(billingAddress);
-			customer.ShippingAddress.Should().Be(shippingAddress);
-		}
+            // Assert
+            customer.BillingAddress.Should().Be(billingAddress);
+            customer.ShippingAddress.Should().Be(shippingAddress);
+        }
 
-		[Fact]
-		public void Should_update_billing_address_only()
-		{
-			// Arrange
-			var customer = CreateTestCustomer();
-			var billingAddress = Address.From(
-				"123 Billing St", "Billtown", "State", "12345", "Country");
+        [Fact]
+        public void Should_update_billing_address_only()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+            var billingAddress = Address.From(
+                "123 Billing St", "Billtown", "State", "12345", "Country");
 
-			// Act
-			customer.UpdateAddressDetails(billingAddress, null);
+            // Act
+            customer.UpdateAddressDetails(billingAddress, null);
 
-			// Assert
-			customer.BillingAddress.Should().Be(billingAddress);
-			customer.ShippingAddress.Should().Be(null);
-		}
+            // Assert
+            customer.BillingAddress.Should().Be(billingAddress);
+            customer.ShippingAddress.Should().Be(null);
+        }
 
-		[Fact]
-		public void Should_update_shipping_address_only()
-		{
-			// Arrange
-			var customer = CreateTestCustomer();
-			var shippingAddress = Address.From(
-				"456 Shipping Ave", "Shipville", "State", "67890", "Country");
+        [Fact]
+        public void Should_update_shipping_address_only()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+            var shippingAddress = Address.From(
+                "456 Shipping Ave", "Shipville", "State", "67890", "Country");
 
-			// Act
-			customer.UpdateAddressDetails(null, shippingAddress);
+            // Act
+            customer.UpdateAddressDetails(null, shippingAddress);
 
-			// Assert
-			customer.BillingAddress.Should().Be(null);
-			customer.ShippingAddress.Should().Be(shippingAddress);
-		}
+            // Assert
+            customer.BillingAddress.Should().Be(null);
+            customer.ShippingAddress.Should().Be(shippingAddress);
+        }
 
-		[Fact]
-		public void Should_allow_clearing_addresses()
-		{
-			// Arrange
-			var customer = CreateTestCustomer();
-			var billingAddress = Address.From(
-				"123 Billing St", "Billtown", "State", "12345", "Country");
-			var shippingAddress = Address.From(
-				"456 Shipping Ave", "Shipville", "State", "67890", "Country");
+        [Fact]
+        public void Should_allow_clearing_addresses()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+            var billingAddress = Address.From(
+                "123 Billing St", "Billtown", "State", "12345", "Country");
+            var shippingAddress = Address.From(
+                "456 Shipping Ave", "Shipville", "State", "67890", "Country");
 
-			customer.UpdateAddressDetails(billingAddress, shippingAddress);
+            customer.UpdateAddressDetails(billingAddress, shippingAddress);
 
-			// Act - clear both addresses
-			customer.UpdateAddressDetails(null, null);
+            // Act - clear both addresses
+            customer.UpdateAddressDetails(null, null);
 
-			// Assert
-			customer.BillingAddress.Should().Be(null);
-			customer.ShippingAddress.Should().Be(null);
-		}
-	}
+            // Assert
+            customer.BillingAddress.Should().Be(null);
+            customer.ShippingAddress.Should().Be(null);
+        }
+    }
 }

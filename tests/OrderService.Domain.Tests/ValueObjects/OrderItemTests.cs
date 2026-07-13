@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using OrderService.Domain.ValueObjects;
 
 namespace OrderService.Domain.Tests.ValueObjects;
@@ -24,7 +25,7 @@ public class OrderItemTests
         orderItem.ProductId.Should().Be(productId);
         orderItem.Price.Should().Be(price);
     }
-    
+
     [Fact]
     public void Should_be_equal_when_all_properties_are_the_same()
     {

@@ -1,4 +1,5 @@
 using CustomerService.Application.DTOs;
+
 using FluentValidation;
 
 namespace CustomerService.Application.Validators;
@@ -9,15 +10,15 @@ namespace CustomerService.Application.Validators;
 /// </summary>
 public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRequest>
 {
-	public CreateCustomerRequestValidator()
-	{
-		// Name: required, max 200 chars (matches domain constraint)
-		RuleFor(x => x.Name)
-			.NotNull()
-			.WithMessage("Customer name is required.");
+    public CreateCustomerRequestValidator()
+    {
+        // Name: required, max 200 chars (matches domain constraint)
+        RuleFor(x => x.Name)
+            .NotNull()
+            .WithMessage("Customer name is required.");
 
-		RuleFor(x => x.Email)
-			.NotNull()
-			.WithMessage("Email is required.");
-	}
+        RuleFor(x => x.Email)
+            .NotNull()
+            .WithMessage("Email is required.");
+    }
 }

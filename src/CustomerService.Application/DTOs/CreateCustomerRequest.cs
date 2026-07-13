@@ -1,8 +1,8 @@
 namespace CustomerService.Application.DTOs;
 
 public record CreateCustomerRequest(
-	string Name,
-	string Email,
-	string? HomePhone,
-	string? MobilePhone
+    string Name,
+    string Email,
+    string? HomePhone,
+    string? MobilePhone
 );

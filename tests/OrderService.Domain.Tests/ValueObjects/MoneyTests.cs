@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using OrderService.Domain.ValueObjects;
 
 namespace OrderService.Domain.Tests.ValueObjects;

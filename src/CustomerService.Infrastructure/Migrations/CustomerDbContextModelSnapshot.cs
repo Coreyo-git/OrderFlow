@@ -87,10 +87,6 @@ namespace CustomerService.Infrastructure.Migrations
                                 .HasColumnType("character varying(100)")
                                 .HasColumnName("billing_country");
 
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uuid")
-                                .HasColumnName("business_address_id");
-
                             b1.Property<string>("PostalCode")
                                 .IsRequired()
                                 .HasMaxLength(20)
@@ -133,10 +129,6 @@ namespace CustomerService.Infrastructure.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
                                 .HasColumnName("shipping_country");
-
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uuid")
-                                .HasColumnName("shipping_address_id");
 
                             b1.Property<string>("PostalCode")
                                 .IsRequired()

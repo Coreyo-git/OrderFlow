@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using OrderService.Domain.ValueObjects;
 
 namespace OrderService.Domain.Tests.ValueObjects;
@@ -84,4 +85,5 @@ public class AddressTests
 
         // Assert
         result.Should().Be(expectedString);
-    }}
+    }
+}
