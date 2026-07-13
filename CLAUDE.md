@@ -33,14 +33,16 @@ src/
   CustomerService.Infrastructure/  -> EF Core DbContext, repositories, migrations, configs
   OrderService/                    -> Stub (template only)
 tests/
-  CustomerService.Domain.Tests/    -> xUnit + FluentAssertions (61 tests)
+  CustomerService.Domain.Tests/       -> xUnit + FluentAssertions
+  OrderService.Domain.Tests/          -> xUnit + FluentAssertions
+  CustomerService.API.IntegrationTests/ -> xUnit + WebApplicationFactory + Testcontainers.PostgreSql
 ```
 
 Each bounded context follows clean architecture: Domain -> Application -> Infrastructure -> API.
 
 ## Key Conventions
 
-- .NET 9, C# with nullable enabled
+- .NET 10, C# with nullable enabled
 - PostgreSQL via EF Core (Npgsql), snake_case column naming
 - Value objects use static `From()` factory methods with validation, throw `DomainException` on invalid input
 - Aggregates use static `Create()` factory methods
