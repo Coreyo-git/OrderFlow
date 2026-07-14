@@ -6,8 +6,20 @@ name: .NET CI
 on:
   push:
     branches: ["master"]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "OrderFlow.sln"
+      - ".editorconfig"
+      - ".github/workflows/dotnet.yml"
   pull_request:
     branches: ["master"]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "OrderFlow.sln"
+      - ".editorconfig"
+      - ".github/workflows/dotnet.yml"
 
 jobs:
   lint-build-test:

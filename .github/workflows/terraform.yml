@@ -1,0 +1,28 @@
+# Lint Terraform config on every push/PR that touches infra/terraform.
+# Deliberately fmt-only for now — plan/apply need Azure credentials we haven't wired into CI yet.
+
+name: Terraform CI
+
+on:
+  push:
+    branches: ["master"]
+    paths: ["infra/terraform/**"]
+  pull_request:
+    branches: ["master"]
+    paths: ["infra/terraform/**"]
+
+jobs:
+  fmt:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.0"
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive infra/terraform
