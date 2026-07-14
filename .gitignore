@@ -83,5 +83,13 @@ paket-files/
 # Docker
 **/docker-compose.override.yml
 
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+crash.*.log
+
 # JetBrains Rider
 *.sln.iml
