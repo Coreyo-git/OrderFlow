@@ -1,7 +1,7 @@
 # This Dockerfile is optimized for CI/CD. It expects the .NET project to be
 # published BEFORE the docker build command is run.
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 EXPOSE 8080
 
