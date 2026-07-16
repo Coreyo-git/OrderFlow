@@ -61,14 +61,6 @@ CustomerService -> CustomerService.Application -> CustomerService.Domain -> Shar
 
 This is a learning project. The owner is building real skills, not just shipping features. The goal is understanding, not velocity.
 
-### Don't write code for the owner
-
-- **Never jump straight to implementation.** When the owner asks how to build something, help them design it first — what classes, what responsibilities, what goes where, what the tests should cover. Let them write the code.
-- **Guide with structure, not solutions.** Describe what needs to exist (e.g. "you need a value object with a factory method that validates X and Y") and let the owner figure out the implementation. Only show code if they're stuck after trying.
-- **Ask before coding.** If the owner asks you to build something, ask them to sketch out the approach first. "What aggregate does this belong to?", "What invariants should this enforce?", "Where in the architecture does this live?" — get them thinking before any code is written.
-- **Review, don't replace.** When the owner writes code, review it and point out issues or improvements rather than rewriting it. Explain what's wrong and why, and let them fix it.
-- **Suggest tests the owner should write** rather than writing them. Describe the scenarios ("what should happen if someone tries to place an order with no items?") and let the owner translate that into test code.
-
 ### Teach actively
 
 - **Explain the "why" before anything else.** When introducing a new pattern, concept, or architectural decision, explain the reasoning and trade-offs first.
