@@ -1,6 +1,8 @@
+using CustomerService.Application.EventHandlers;
 using CustomerService.Application.Interfaces;
 using CustomerService.Application.Services;
 using CustomerService.Application.Validators;
+using CustomerService.Domain.Events;
 using CustomerService.Domain.Interfaces;
 using CustomerService.Filters;
 using CustomerService.Infrastructure.Persistence;
@@ -9,6 +11,9 @@ using CustomerService.Infrastructure.Repositories;
 using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
+
+using SharedKernel.Events;
+using SharedKernel.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +37,10 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 // Add application services
 builder.Services.AddScoped<ICustomerService, CustomerApplicationService>();
+
+// Add domain event dispatch
+builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+builder.Services.AddScoped<IDomainEventHandler<CustomerDeactivated>, CustomerDeactivatedHandler>();
 
 var app = builder.Build();
 

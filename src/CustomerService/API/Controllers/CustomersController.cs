@@ -52,6 +52,17 @@ public class CustomersController : ControllerBase
         return CreatedAtRoute("GetCustomerById", new { id = customer.Id }, customer);
     }
 
+    [HttpPatch("{id:guid}/deactivate")]
+    public async Task<IActionResult> DeactivateAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var customer = await _customerService.DeactivateAsync(id, cancellationToken);
+        if (customer is null)
+        {
+            return NotFound();
+        }
+        return Ok(customer);
+    }
+
     [HttpGet("health")]
     public IActionResult Health() => Ok(new { status = "healthy" });
 }

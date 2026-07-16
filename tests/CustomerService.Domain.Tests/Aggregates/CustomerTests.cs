@@ -1,4 +1,5 @@
 using CustomerService.Domain.Aggregates;
+using CustomerService.Domain.Events;
 using CustomerService.Domain.Exceptions;
 using CustomerService.Domain.ValueObjects;
 
@@ -132,6 +133,21 @@ public class CustomerTests
 
             // Assert
             customer.IsActive.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Should_raise_CustomerDeactivated_event()
+        {
+            // Arrange
+            var customer = CreateTestCustomer();
+
+            // Act
+            customer.Deactivate();
+
+            // Assert
+            var domainEvent = customer.DomainEvents.Should().ContainSingle().Subject;
+            domainEvent.Should().BeOfType<CustomerDeactivated>()
+                .Which.AggregateId.Should().Be(customer.Id.Value);
         }
     }
 

@@ -1,12 +1,15 @@
+using CustomerService.Domain.Events;
 using CustomerService.Domain.Exceptions;
 using CustomerService.Domain.ValueObjects;
+
+using SharedKernel;
 
 namespace CustomerService.Domain.Aggregates;
 
 /// <summary>
 /// Represents a customer in the system.
 /// </summary>
-public sealed class Customer
+public sealed class Customer : AggregateRoot
 {
     public CustomerId Id { get; private set; } = null!;
     public CustomerName Name { get; private set; } = null!;
@@ -125,7 +128,7 @@ public sealed class Customer
     /// </summary>
     public void Activate()
     {
-        // Send domain event to notify other bounded contexts eventually
+        // TODO: raise a CustomerActivated event, mirroring Deactivate below
         IsActive = true;
     }
 
@@ -134,8 +137,8 @@ public sealed class Customer
     /// </summary>
     public void Deactivate()
     {
-        // TODO: if customer has pending orders, customer can not be deactivated 
-        // Send domain event to notify other bounded contexts eventually
+        // TODO: if customer has pending orders, customer can not be deactivated
         IsActive = false;
+        RaiseDomainEvent(new CustomerDeactivated(Id.Value, DateTime.UtcNow));
     }
 }

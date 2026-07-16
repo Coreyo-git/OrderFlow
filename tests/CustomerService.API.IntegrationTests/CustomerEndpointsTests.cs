@@ -3,12 +3,15 @@ using System.Net.Http.Json;
 
 using CustomerService.API.IntegrationTests.Fixtures;
 using CustomerService.Application.DTOs;
+using CustomerService.Domain.Events;
 using CustomerService.Infrastructure.Persistence;
 
 using FluentAssertions;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using SharedKernel.Interfaces;
 
 namespace CustomerService.API.IntegrationTests;
 
@@ -90,5 +93,64 @@ public class CustomerEndpointsTests : IAsyncLifetime
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var body = await response.Content.ReadFromJsonAsync<List<CustomerResponse>>();
         body!.Should().ContainSingle(c => c.Id == created.Id);
+    }
+
+    [Fact]
+    public async Task DeactivateAsync_SetsCustomerInactive()
+    {
+        var created = await CreateCustomerAsync("turing@example.com");
+
+        var response = await _client.PatchAsync($"/api/customers/{created.Id}/deactivate", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadFromJsonAsync<CustomerResponse>();
+        body!.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DeactivateAsync_ReturnsNotFound_ForUnknownCustomer()
+    {
+        var response = await _client.PatchAsync($"/api/customers/{Guid.NewGuid()}/deactivate", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeactivateAsync_DispatchesCustomerDeactivatedToRegisteredHandlers()
+    {
+        // Proves the dispatcher's DI resolution + fan-out actually works end to end,
+        // through the real HTTP pipeline rather than a bare unit test of the dispatcher.
+        var spy = new SpyCustomerDeactivatedHandler();
+
+        using var factory = _fixture.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                services.AddSingleton<IDomainEventHandler<CustomerDeactivated>>(spy);
+            });
+        });
+        using var client = factory.CreateClient();
+
+        var createResponse = await client.PostAsJsonAsync(
+            "/api/customers",
+            new CreateCustomerRequest("Alan Turing", "turing-spy@example.com", null, null));
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created, await createResponse.Content.ReadAsStringAsync());
+        var created = await createResponse.Content.ReadFromJsonAsync<CustomerResponse>();
+
+        var patchResponse = await client.PatchAsync($"/api/customers/{created!.Id}/deactivate", null);
+        patchResponse.StatusCode.Should().Be(HttpStatusCode.OK, await patchResponse.Content.ReadAsStringAsync());
+
+        spy.HandledEvents.Should().ContainSingle(e => e.AggregateId == created.Id);
+    }
+
+    private sealed class SpyCustomerDeactivatedHandler : IDomainEventHandler<CustomerDeactivated>
+    {
+        public List<CustomerDeactivated> HandledEvents { get; } = new();
+
+        public Task Handle(CustomerDeactivated domainEvent, CancellationToken cancellationToken = default)
+        {
+            HandledEvents.Add(domainEvent);
+            return Task.CompletedTask;
+        }
     }
 }

@@ -4,15 +4,19 @@ using CustomerService.Domain.Aggregates;
 using CustomerService.Domain.Interfaces;
 using CustomerService.Domain.ValueObjects;
 
+using SharedKernel.Interfaces;
+
 namespace CustomerService.Application.Services;
 
 public class CustomerApplicationService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly IDomainEventDispatcher _domainEventDispatcher;
 
-    public CustomerApplicationService(ICustomerRepository customerRepository)
+    public CustomerApplicationService(ICustomerRepository customerRepository, IDomainEventDispatcher domainEventDispatcher)
     {
         _customerRepository = customerRepository;
+        _domainEventDispatcher = domainEventDispatcher;
     }
 
     public async Task<CustomerResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -43,6 +47,24 @@ public class CustomerApplicationService : ICustomerService
 
         _customerRepository.Add(customer);
         await _customerRepository.SaveChangesAsync(cancellationToken);
+
+        return MapToResponse(customer);
+    }
+
+    public async Task<CustomerResponse?> DeactivateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var customer = await _customerRepository.GetByIdAsync(CustomerId.From(id), cancellationToken);
+        if (customer is null)
+        {
+            return null;
+        }
+
+        customer.Deactivate();
+        await _customerRepository.SaveChangesAsync(cancellationToken);
+
+        // Dispatch only after the change is committed, so handlers never react to a rolled-back change.
+        await _domainEventDispatcher.DispatchAsync(customer.DomainEvents, cancellationToken);
+        customer.ClearDomainEvents();
 
         return MapToResponse(customer);
     }
