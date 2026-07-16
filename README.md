@@ -51,9 +51,10 @@ Each service follows clean architecture: **Domain → Application → Infrastruc
 | Messaging       | Apache Kafka (planned)              |
 | Testing         | xUnit, FluentAssertions             |
 | Containers      | Docker, Docker Compose              |
-| Orchestration   | Kubernetes (planned)                |
+| Orchestration   | Kubernetes / AKS (planned), Azure Container Apps (interim) |
+| Infrastructure  | Terraform (Azure), Azure Key Vault (planned) |
 | Observability   | Serilog, OpenTelemetry, Grafana (planned) |
-| CI/CD           | GitHub Actions, Jenkins (planned)   |
+| CI/CD           | GitHub Actions                      |
 
 ## Project Structure
 
@@ -68,7 +69,10 @@ OrderFlow/
 │   └── OrderService/                  # Stub — next up
 ├── tests/
 │   └── CustomerService.Domain.Tests/
+├── infra/
+│   └── terraform/                     # Azure resource group, ACR, GitHub OIDC (scaffolded)
 ├── docker-compose.yml
+├── .env.example                       # Template for local secrets (.env is git-ignored)
 └── OrderFlow.sln
 ```
 
@@ -96,6 +100,6 @@ The project is built in phases. See [the full roadmap](event_driven_microservice
 | 2     | Domain events                | Planned     |
 | 3     | Kafka & microservices        | Planned     |
 | 4     | Reliability patterns         | Planned     |
-| 5     | Kubernetes                   | Planned     |
+| 5     | Azure & Kubernetes           | In progress |
 | 6     | Observability                | Planned     |
 | 7     | CI/CD                        | Planned     |
