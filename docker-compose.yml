@@ -8,18 +8,18 @@ services:
       - "5100:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__CustomerDb=Host=postgres-customers;Database=customerdb;Username=orderflow;Password=orderflow_dev
+      - ConnectionStrings__CustomerDb=Host=postgres-customers;Database=customerdb;Username=${CUSTOMERDB_USER};Password=${CUSTOMERDB_PASSWORD}
     depends_on:
       postgres-customers:
         condition: service_healthy
 
   postgres-customers:
-    image: ${POSTGRES_IMAGE}
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=orderflow
-      - POSTGRES_PASSWORD=orderflow_dev
+      - POSTGRES_USER=${CUSTOMERDB_USER}
+      - POSTGRES_PASSWORD=${CUSTOMERDB_PASSWORD}
       - POSTGRES_DB=customerdb
     volumes:
       - postgres_customer_data:/var/lib/postgresql/data
@@ -38,18 +38,18 @@ services:
       - "5200:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__OrderDb=Host=postgres-orders;Database=orderdb;Username=orderflow;Password=orderflow_dev
+      - ConnectionStrings__OrderDb=Host=postgres-orders;Database=orderdb;Username=${ORDERDB_USER};Password=${ORDERDB_PASSWORD}
     depends_on:
       postgres-orders:
         condition: service_healthy
 
   postgres-orders:
-    image: ${POSTGRES_IMAGE}
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
     ports:
       - "5433:5432" # Use a different host port to avoid conflicts
     environment:
-      - POSTGRES_USER=orderflow
-      - POSTGRES_PASSWORD=orderflow_dev
+      - POSTGRES_USER=${ORDERDB_USER}
+      - POSTGRES_PASSWORD=${ORDERDB_PASSWORD}
       - POSTGRES_DB=orderdb
     volumes:
       - postgres_order_data:/var/lib/postgresql/data

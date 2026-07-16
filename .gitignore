@@ -57,7 +57,6 @@ $RECYCLE.BIN/
 
 # User-specific files
 *.env
-!.env
 *.env.local
 *.env.*.local
 appsettings.Local.json
