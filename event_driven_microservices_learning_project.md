@@ -137,10 +137,11 @@ Each service follows **clean architecture**: Domain → Application → Infrastr
 
 **Goal:** Separate domain logic from side effects.
 
-- [ ] In-process domain event dispatch (MediatR or custom `IEventDispatcher`) - learn what MediatR is and why I would use it
-- [ ] Domain events: `OrderPlaced`, `OrderConfirmed`, `OrderCancelled`
-- [ ] Customer domain events: `CustomerDeactivated` (notify other contexts)
-- [ ] Event handlers in the application layer
+- [x] In-process domain event dispatch — custom `IDomainEventDispatcher` (`SharedKernel/Events/DomainEventDispatcher.cs`), resolving handlers via DI + reflection rather than MediatR: matches the `IDomainEventHandler<T>` shape already scaffolded, and the added machinery of MediatR (pipeline behaviors, request/response) isn't earning its keep yet for a couple of in-process events. Revisit MediatR once there are enough event types/handlers that the hand-rolled plumbing starts to hurt.
+- [x] `AggregateRoot` base class (`SharedKernel/AggregateRoot.cs`) — `Customer` now derives from it; `Order` doesn't yet
+- [ ] Domain events: `OrderPlaced`, `OrderConfirmed`, `OrderCancelled` — blocked on OrderService.Application/Infrastructure/API, which are still stub projects with no code
+- [x] Customer domain events: `CustomerDeactivated`, raised from `Customer.Deactivate()`, dispatched after `SaveChangesAsync` commits
+- [x] Event handlers in the application layer — `CustomerDeactivatedHandler` (logs; stands in for the Phase 3 Kafka publisher)
 
 ---
 
