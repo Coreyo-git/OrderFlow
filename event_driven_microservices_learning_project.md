@@ -43,7 +43,7 @@ Each microservice represents a **bounded context**, communicates **asynchronousl
 | Microservice       | Bounded Context | Status      |
 |--------------------|-----------------|-------------|
 | CustomerService    | Customers       | In progress |
-| OrderService       | Ordering        | Stub        |
+| OrderService       | Ordering        | In progress |
 | PaymentService     | Payments        | Planned     |
 | InventoryService   | Inventory       | Planned     |
 | NotificationService| Messaging       | Planned     |
@@ -75,9 +75,15 @@ OrderFlow/
 │   │   ├── Configurations/
 │   │   ├── Migrations/
 │   │   └── Repositories/
-│   └── OrderService/                  # Stub — future implementation
+│   ├── OrderService/                  # ASP.NET Core Web API — mirrors CustomerService's layout
+│   ├── OrderService.Domain/
+│   ├── OrderService.Application/
+│   └── OrderService.Infrastructure/
 ├── tests/
-│   └── CustomerService.Domain.Tests/  # 61 unit tests (xUnit + FluentAssertions)
+│   ├── CustomerService.Domain.Tests/
+│   ├── CustomerService.API.IntegrationTests/
+│   ├── OrderService.Domain.Tests/
+│   └── OrderService.API.IntegrationTests/
 ├── infra/
 │   └── terraform/                     # Azure resource group, ACR, GitHub OIDC (scaffolded), AKS (planned)
 ├── docker-compose.yml
@@ -141,7 +147,9 @@ Each service follows **clean architecture**: Domain → Application → Infrastr
 - [x] `AggregateRoot` base class (`SharedKernel/AggregateRoot.cs`) — `Customer` now derives from it; `Order` doesn't yet
 - [ ] Domain events: `OrderPlaced`, `OrderConfirmed`, `OrderCancelled` — blocked on OrderService.Application/Infrastructure/API, which are still stub projects with no code
 - [x] Customer domain events: `CustomerDeactivated`, raised from `Customer.Deactivate()`, dispatched after `SaveChangesAsync` commits
-- [x] Event handlers in the application layer — `CustomerDeactivatedHandler` (logs; stands in for the Phase 3 Kafka publisher)
+- [x] Order domain events: `OrderPlaced`, `OrderConfirmed`, `OrderCancelled` (only on an actual state transition, not the idempotent double-cancel no-op)
+- [x] OrderService.Application/Infrastructure/API layers stood up (were empty stubs) — DTOs, validator, repository, EF Core `OrderDbContext` + migration, `OrdersController` (create/get/confirm/cancel), all wired into `docker-compose.yml`
+- [x] Event handlers in the application layer — one handler per event (logs; stands in for the Phase 3 Kafka publisher)
 
 ---
 

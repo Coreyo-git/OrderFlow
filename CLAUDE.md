@@ -31,11 +31,15 @@ src/
   CustomerService.Domain/          -> Aggregates, value objects, exceptions, interfaces
   CustomerService.Application/     -> Application services, DTOs, validators
   CustomerService.Infrastructure/  -> EF Core DbContext, repositories, migrations, configs
-  OrderService/                    -> Stub (template only)
+  OrderService/                    -> ASP.NET Core Web API (mirrors CustomerService's layout)
+  OrderService.Domain/             -> Aggregates, value objects, domain events, interfaces
+  OrderService.Application/        -> Application services, DTOs, validators, event handlers
+  OrderService.Infrastructure/     -> EF Core DbContext, repositories, migrations, configs
 tests/
   CustomerService.Domain.Tests/       -> xUnit + FluentAssertions
   OrderService.Domain.Tests/          -> xUnit + FluentAssertions
   CustomerService.API.IntegrationTests/ -> xUnit + WebApplicationFactory + Testcontainers.PostgreSql
+  OrderService.API.IntegrationTests/    -> xUnit + WebApplicationFactory + Testcontainers.PostgreSql
 ```
 
 Each bounded context follows clean architecture: Domain -> Application -> Infrastructure -> API.
@@ -55,6 +59,9 @@ Each bounded context follows clean architecture: Domain -> Application -> Infras
 ```
 CustomerService -> CustomerService.Application -> CustomerService.Domain -> SharedKernel
                 -> CustomerService.Infrastructure -> CustomerService.Domain -> SharedKernel
+
+OrderService -> OrderService.Application -> OrderService.Domain -> SharedKernel
+             -> OrderService.Infrastructure -> OrderService.Domain -> SharedKernel
 ```
 
 ## Teaching & Learning Guidelines
