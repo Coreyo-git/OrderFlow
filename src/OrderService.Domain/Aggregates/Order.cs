@@ -1,23 +1,26 @@
 using OrderService.Domain.Enums;
+using OrderService.Domain.Events;
 using OrderService.Domain.Exceptions;
 using OrderService.Domain.ValueObjects;
+
+using SharedKernel;
 
 namespace OrderService.Domain.Aggregates;
 
 /// <summary>
 /// Represents an order in the system.
 /// </summary>
-public sealed class Order
+public sealed class Order : AggregateRoot
 {
     private readonly List<OrderItem> _orderItems = new();
     /// <summary>
     /// Gets the unique identifier for the order.
     /// </summary>
-    public OrderId Id { get; private set; }
+    public OrderId Id { get; private set; } = null!;
     /// <summary>
     /// Gets the identifier of the customer who placed the order.
     /// </summary>
-    public CustomerId CustomerId { get; private set; }
+    public CustomerId CustomerId { get; private set; } = null!;
     /// <summary>
     /// Gets the current status of the order.
     /// </summary>
@@ -26,9 +29,17 @@ public sealed class Order
     /// Gets a read-only collection of items included in the order.
     /// </summary>
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
-    public Address ShippingAddress { get; private set; }
+    public Address ShippingAddress { get; private set; } = null!;
     public Address? BillingAddress { get; private set; }
-    public Culture Culture { get; private set; }
+    public Culture Culture { get; private set; } = null!;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Order"/> class.
+    /// </summary>
+    /// <remarks>
+    /// Required by EF Core.
+    /// </remarks>
+    private Order() { } // EF Core
 
     /// <summary>
     /// Private constructor for creating a new order.
@@ -69,6 +80,8 @@ public sealed class Order
             order._orderItems.Add(orderItem);
         }
 
+        order.RaiseDomainEvent(new OrderPlaced(order.Id.Value, customerId.Value, DateTime.UtcNow));
+
         return order;
     }
 
@@ -86,6 +99,7 @@ public sealed class Order
         }
 
         Status = OrderStatus.Confirmed;
+        RaiseDomainEvent(new OrderConfirmed(Id.Value, DateTime.UtcNow));
     }
 
     /// <summary>
@@ -139,5 +153,6 @@ public sealed class Order
         }
 
         Status = OrderStatus.Cancelled;
+        RaiseDomainEvent(new OrderCancelled(Id.Value, DateTime.UtcNow));
     }
 }

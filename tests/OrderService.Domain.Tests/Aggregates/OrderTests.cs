@@ -4,6 +4,7 @@ using FluentAssertions;
 
 using OrderService.Domain.Aggregates;
 using OrderService.Domain.Enums;
+using OrderService.Domain.Events;
 using OrderService.Domain.Exceptions;
 using OrderService.Domain.ValueObjects;
 
@@ -74,6 +75,21 @@ public class OrderTests
     }
 
     [Fact]
+    public void Should_raise_OrderPlaced_event_on_create()
+    {
+        // Arrange
+        var customerId = CustomerId.From(Guid.NewGuid());
+
+        // Act
+        var order = CreateTestOrder(customerId: customerId);
+
+        // Assert
+        var domainEvent = order.DomainEvents.Should().ContainSingle().Subject;
+        domainEvent.Should().BeOfType<OrderPlaced>()
+            .Which.Should().Match<OrderPlaced>(e => e.AggregateId == order.Id.Value && e.CustomerId == customerId.Value);
+    }
+
+    [Fact]
     public void Should_create_order_with_multiple_items()
     {
         // Arrange
@@ -120,6 +136,22 @@ public class OrderTests
 
         // Assert
         order.Status.Should().Be(OrderStatus.Confirmed);
+    }
+
+    [Fact]
+    public void Should_raise_OrderConfirmed_event()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.ClearDomainEvents(); // Discard the OrderPlaced event raised by Create
+
+        // Act
+        order.ConfirmOrder();
+
+        // Assert
+        var domainEvent = order.DomainEvents.Should().ContainSingle().Subject;
+        domainEvent.Should().BeOfType<OrderConfirmed>()
+            .Which.AggregateId.Should().Be(order.Id.Value);
     }
 
     [Fact]
@@ -212,6 +244,37 @@ public class OrderTests
 
         // Assert 2
         confirmedOrder.Status.Should().Be(OrderStatus.Cancelled);
+    }
+
+    [Fact]
+    public void Should_raise_OrderCancelled_event()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.ClearDomainEvents(); // Discard the OrderPlaced event raised by Create
+
+        // Act
+        order.CancelOrder();
+
+        // Assert
+        var domainEvent = order.DomainEvents.Should().ContainSingle().Subject;
+        domainEvent.Should().BeOfType<OrderCancelled>()
+            .Which.AggregateId.Should().Be(order.Id.Value);
+    }
+
+    [Fact]
+    public void Should_not_raise_OrderCancelled_event_again_when_already_cancelled()
+    {
+        // Arrange
+        var order = CreateTestOrder();
+        order.CancelOrder();
+        order.ClearDomainEvents();
+
+        // Act
+        order.CancelOrder(); // No-op: already cancelled
+
+        // Assert
+        order.DomainEvents.Should().BeEmpty();
     }
 
     [Fact]

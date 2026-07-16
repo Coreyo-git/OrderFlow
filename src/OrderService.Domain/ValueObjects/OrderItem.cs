@@ -10,9 +10,19 @@ namespace OrderService.Domain.ValueObjects;
 public sealed record OrderItem
 {
     public Guid Id { get; private set; }
-    public OrderId OrderId { get; private set; }
-    public ProductId ProductId { get; private set; }
-    public Money Price { get; private set; }
+    public OrderId OrderId { get; private set; } = null!;
+    public ProductId ProductId { get; private set; } = null!;
+    public Money Price { get; private set; } = null!;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OrderItem"/> class.
+    /// </summary>
+    /// <remarks>
+    /// Required by EF Core: Price is mapped as an owned type, and EF's
+    /// constructor-binding materialization can't bind constructor parameters
+    /// to owned-type navigations, only to scalar properties.
+    /// </remarks>
+    private OrderItem() { } // EF Core
 
     /// <summary>
     /// Creates a new <see cref="OrderItem"/>.
